@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { formatTime } from '../storage';
 
-const JUMP_SECONDS = 5 * 60;
-
 interface Props {
   mission: string;
+  jumpMinutes: number;
   onCheckpoint: (elapsedSeconds: number) => void;
 }
 
-const Jump: React.FC<Props> = ({ mission, onCheckpoint }) => {
+const Jump: React.FC<Props> = ({ mission, jumpMinutes, onCheckpoint }) => {
+  const JUMP_SECONDS = jumpMinutes * 60;
   const [secondsLeft, setSecondsLeft] = useState(JUMP_SECONDS);
   const [phase, setPhase] = useState<'countdown' | 'counting-up'>('countdown');
   const [countUpSeconds, setCountUpSeconds] = useState(0);
@@ -52,7 +52,7 @@ const Jump: React.FC<Props> = ({ mission, onCheckpoint }) => {
   return (
     <div className="screen jump-screen">
       <div className="screen-inner">
-        <h1 className="screen-title">Initiating 5-Minute Jump.</h1>
+        <h1 className="screen-title">Initiating {jumpMinutes}-Minute Jump.</h1>
         <p className="mission-badge">{mission}</p>
 
         <div className="timer-display" aria-live="polite" aria-atomic="true">
