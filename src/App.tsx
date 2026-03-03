@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { Screen, ProgressLevel } from './types';
 import { buildSession, getDailyStats, getTodayDate, saveSession } from './storage';
+import { evaluateAdaptiveJump } from './adaptiveJump';
 import Dashboard from './screens/Dashboard';
 import Mission from './screens/Mission';
 import Estimate from './screens/Estimate';
@@ -68,6 +69,7 @@ const App: React.FC = () => {
   };
 
   const todayStats = getDailyStats(getTodayDate());
+  const adaptiveJumpMinutes = evaluateAdaptiveJump();
 
   return (
     <div className="app">
@@ -78,7 +80,14 @@ const App: React.FC = () => {
         />
       )}
       {screen === 'mission' && (
-        <Mission onNext={handleMissionNext} onBack={() => goTo('dashboard')} />
+        <>
+          {adaptiveJumpMinutes > 5 && (
+            <p className="adaptive-jump-notice">
+              Temporal engines upgraded. Your historical trajectory shows strong momentum. Default jump length increased to {adaptiveJumpMinutes} minutes.
+            </p>
+          )}
+          <Mission onNext={handleMissionNext} onBack={() => goTo('dashboard')} />
+        </>
       )}
       {screen === 'estimate' && (
         <Estimate onNext={handleEstimateNext} onBack={() => goTo('mission')} />
@@ -87,7 +96,7 @@ const App: React.FC = () => {
         <FutureSelf onNext={handleFutureSelfNext} onBack={() => goTo('estimate')} />
       )}
       {screen === 'jump' && (
-        <Jump mission={mission} onCheckpoint={handleCheckpoint} />
+        <Jump mission={mission} jumpMinutes={adaptiveJumpMinutes} onCheckpoint={handleCheckpoint} />
       )}
       {screen === 'checkpoint' && (
         <Checkpoint elapsedSeconds={actualSeconds} onEnd={handleSessionEnd} />
